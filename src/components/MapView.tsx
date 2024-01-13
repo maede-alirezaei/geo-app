@@ -4,6 +4,7 @@ import OSM from "ol/source/OSM.js";
 import TileLayer from "ol/layer/Tile.js";
 import View from "ol/View.js";
 import { useEffect } from "react";
+import { Box } from "@chakra-ui/react";
 
 const MapView = () => {
   useEffect(() => {
@@ -26,7 +27,9 @@ const MapView = () => {
   }, []);
 
   return (
-      <div id="map" ></div>
+    <Box width={100} height={100}>
+      <div id="map"></div>
+    </Box>
   );
 };
 

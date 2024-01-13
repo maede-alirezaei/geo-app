@@ -1,11 +1,14 @@
-import "./App.css";
 import MapView from "./components/MapView";
-
+import StationSelection from "./components/StationSelection";
+import { ChakraProvider, Flex } from "@chakra-ui/react";
 function App() {
   return (
-    <div style={{ width: "100%", height: "400px" }}>
-      <MapView />
-    </div>
+    <ChakraProvider>
+      <Flex>
+        <StationSelection />
+        <MapView />
+      </Flex>
+    </ChakraProvider>
   );
 }
 
