@@ -4,7 +4,7 @@ import { ChakraProvider, Flex } from "@chakra-ui/react";
 function App() {
   return (
     <ChakraProvider>
-      <Flex>
+      <Flex width="100%" height="100vh" p={"64px"}>
         <StationSelection />
         <MapView />
       </Flex>

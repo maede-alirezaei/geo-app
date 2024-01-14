@@ -27,7 +27,7 @@ const MapView = () => {
   }, []);
 
   return (
-    <Box width={100} height={100}>
+    <Box width={"100%"} height={"100%"}>
       <div id="map"></div>
     </Box>
   );
