@@ -8,21 +8,38 @@ import View from "ol/View.js";
 // import { Point } from "ol/geom";
 
 import { Box } from "@chakra-ui/react";
-import VectorLayer from 'ol/layer/Vector.js';
-import VectorSource from 'ol/source/Vector.js';
-import { Style, Circle, Fill, Stroke } from 'ol/style.js';
-import GeoJSON from 'ol/format/GeoJSON.js';
+import VectorLayer from "ol/layer/Vector.js";
+import VectorSource from "ol/source/Vector.js";
+import { Style, Circle, Fill, Stroke } from "ol/style.js";
+import GeoJSON from "ol/format/GeoJSON.js";
+import { transformSRC } from "../util/transform";
 
-interface ILocation {
-  lat?: number;
-  lng?: number;
-}
+const MapView = ({ stations }) => {
+  const features = stations
+    .filter((item) => item.Latitude && item.Longitude)
+    .map((item) => ({
+      type: "Feature",
+      properties: {
+        Network: item.Network,
+        Station: item.Station,
+        Elevation: parseFloat(item.Elevation),
+        SiteName: item.SiteName,
+        StartTime: item.StartTime,
+        EndTime: item.EndTime,
+      },
+      geometry: {
+        type: "Point",
+        coordinates: [parseFloat(item.Longitude), parseFloat(item.Latitude)],
+      },
+    }));
 
-
-const MapView:React.FC<ILocation> = (props) => {
-  const {lat, lng} = props;
-  console.log(lat, lng)
-
+  const featureCollection = {
+    type: "FeatureCollection",
+    features,
+  };
+  console.log("stations");
+  const jsonString: string = JSON.stringify(featureCollection, null, 2);
+  console.log(featureCollection);
 
   useEffect(() => {
     const map = new Map({
@@ -38,51 +55,34 @@ const MapView:React.FC<ILocation> = (props) => {
       }),
     });
 
-    // GeoJSON object with a Point geometry
-    const geojsonObject = {
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "properties": {},
-          "geometry": {
-            "coordinates": [
-              13.39049453253108,
-              52.5240734431535
-            ],
-            "type": "Point"
-          }
-        }
-      ]
-    }
+    if (featureCollection.features.length > 0) {
+      const GeoJSONObject3857 = transformSRC(featureCollection);
+      console.log("jsonString");
 
-    const vectorSource = new VectorSource({
-      features: new GeoJSON().readFeatures(geojsonObject)
-    });
+      const vectorSource = new VectorSource({
+        features: new GeoJSON().readFeatures(GeoJSONObject3857),
+      });
 
-    const vectorLayer = new VectorLayer({
-      source: vectorSource,
-      style: new Style({
-        image: new Circle({
-          radius: 6,
-          fill: new Fill({
-            color: 'red'
+      const vectorLayer = new VectorLayer({
+        source: vectorSource,
+        style: new Style({
+          image: new Circle({
+            radius: 2,
+            fill: new Fill({
+              color: "blue",
+            }),
           }),
-          stroke: new Stroke({
-            color: 'white',
-            width: 2
-          })
-        })
-      })
-    });
+        }),
+      });
 
-    // Add Vector layer to the map
-    map.addLayer(vectorLayer);
+      // Add Vector layer to the map
+      map.addLayer(vectorLayer);
+    }
 
     return () => {
       map.setTarget(undefined);
     };
-  }, []);
+  }, [jsonString]);
 
   // useEffect(() => {
   //    if (lat && lng) {

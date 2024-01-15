@@ -1,24 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import MapView from "./components/MapView";
 import StationSelection from "./components/StationSelection";
 import { ChakraProvider, Flex } from "@chakra-ui/react";
 
-interface ILocation {
-  lat?: number;
-  lng?: number;
-}
-
 function App() {
+  const [stations, setStations] = useState([]);
 
-  const [location, setLocation] = useState<ILocation>({})
-
+  const stationsHandler = (data) => {
+    setStations(data);
+  };
 
   return (
     <ChakraProvider>
       <Flex width="100%" height="100vh" p={"64px"}>
-        <StationSelection  />
-        <MapView lat={location?.lat} lng={location?.lng} />
+        <StationSelection onStationsHandler={stationsHandler} />
+        <MapView stations={stations} />
       </Flex>
     </ChakraProvider>
   );
