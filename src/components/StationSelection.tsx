@@ -1,13 +1,68 @@
-import {  Card, Select } from "@chakra-ui/react";
+import { Box, Card, Select, Text } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { getStations } from "../services/stations";
 
 function StationSelection() {
+  const [network, setNetwork] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [stations, setStations] = useState([]);
+
+  const handleChange = (event) => {
+    setNetwork(event.target.value);
+  };
+
+  useEffect(() => {
+    if (!network) return;
+
+    const fetchStations = async () => {
+      setLoading(true);
+
+      try {
+        const response = await getStations({ network });
+        const parsedStations = paseText(response.data);
+        setStations(parsedStations);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStations();
+  }, [network]);
+
+  function paseText(rawData: string) {
+    const rows = rawData.split("\n");
+    const header = rows[0].substring(1).split("|");
+
+    // Process the data rows
+    const data = rows.slice(1).map((row) => {
+      const values = row.split("|");
+      let rowData = {};
+
+      header.forEach((key, index) => {
+        rowData = { ...rowData, [key]: values[index] };
+      });
+      return rowData;
+    });
+    return data;
+  }
+
   return (
-    <Card style={{ width: "50%" }} p={"32px"}>
-      <Select placeholder="Select network">
-        <option value="option1">Option 1</option>
-        <option value="option2">Option 2</option>
-        <option value="option3">Option 3</option>
+    <Card width="50%" p="32px">
+      <Select
+        placeholder="Select network"
+        onChange={handleChange}
+        value={network}
+      >
+        <option value="CX">CX</option>
       </Select>
+
+      <Box p={1}>
+        {!network && <Text mt={1}>Please select a network.</Text>}
+        {stations && stations.map((item) => <div>{item.Station}</div>)}
+      </Box>
     </Card>
   );
 }
