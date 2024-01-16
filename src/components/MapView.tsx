@@ -14,6 +14,7 @@ import { Style, Circle, Fill, Stroke } from "ol/style.js";
 import GeoJSON from "ol/format/GeoJSON.js";
 import { transformSRC } from "../util/transform";
 import { Context } from "../store/ContextProvider";
+import { createGeoJson } from "../util/createGeoJson";
 
 const MapView = () => {
   const mapRef = useRef();
@@ -32,31 +33,10 @@ const MapView = () => {
         zoom: 2,
       }),
     });
-    const features = cntx.stations
-      .filter((item) => item.Latitude && item.Longitude)
-      .map((item) => ({
-        type: "Feature",
-        properties: {
-          Network: item.Network,
-          Station: item.Station,
-          Elevation: parseFloat(item.Elevation),
-          SiteName: item.SiteName,
-          StartTime: item.StartTime,
-          EndTime: item.EndTime,
-        },
-        geometry: {
-          type: "Point",
-          coordinates: [parseFloat(item.Longitude), parseFloat(item.Latitude)],
-        },
-      }));
+    const geoJsonData = createGeoJson(cntx.stations);
 
-    const featureCollection = {
-      type: "FeatureCollection",
-      features,
-    };
-
-    if (featureCollection.features.length > 0) {
-      const geoJSONObject = transformSRC(featureCollection);
+    if (geoJsonData.features.length > 0) {
+      const geoJSONObject = transformSRC(geoJsonData);
       const vectorSource = new VectorSource({
         features: new GeoJSON().readFeatures(geoJSONObject),
       });
@@ -83,7 +63,6 @@ const MapView = () => {
   }, [cntx.stations]);
 
   if (cntx.selectedStation) {
-    console.log("selectedStation");
     //  mapRef.current.getView().fit(new Point(selectedStation), {
     //   maxZoom:  mapRef.current.getView().getZoom(),
     //   duration: 300,
