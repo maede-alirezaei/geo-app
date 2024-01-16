@@ -1,17 +1,22 @@
 import { ReactNode, createContext, useState } from "react";
+import { Station } from "../services/stations";
 
 interface ContextProps {
   children: ReactNode;
 }
 export const Context = createContext({
   stations: [],
-  selectedStation: {},
-  handleStations: (stations) => {},
-  handleSelectedStation: (station) => {},
+  selectedStation: "",
+  handleStations: (stations: Station[]) => {
+    stations;
+  },
+  handleSelectedStation: (station: string) => {
+    station;
+  },
 });
 const ContextProvider = ({ children }: ContextProps) => {
-  const [selectedStation, setSelectedStation] = useState({});
-  const [stations, setStations] = useState([]);
+  const [selectedStation, setSelectedStation] = useState<string>("");
+  const [stations, setStations] = useState<Station[]>([]);
   return (
     <Context.Provider
       value={{

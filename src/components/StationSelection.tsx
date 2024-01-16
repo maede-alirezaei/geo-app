@@ -1,16 +1,16 @@
-import { Box, Card, Select, Text } from "@chakra-ui/react";
-import { useContext, useEffect, useState } from "react";
-import { getStations } from "../services/stations";
+import { Card, Select, Text } from "@chakra-ui/react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { Station, getStations } from "../services/stations";
 import { Context } from "../store/ContextProvider";
 import { parseText } from "../util/parseText";
 
 function StationSelection() {
   const cntx = useContext(Context);
-  const [network, setNetwork] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  
-  const handleChange = (event) => {
+  const [network, setNetwork] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setNetwork(event.target.value);
   };
 
@@ -21,10 +21,10 @@ function StationSelection() {
 
       try {
         const response = await getStations({ network });
-        const parsedStations = parseText(response.data);
+        const parsedStations: Station[] = parseText(response.data);
         cntx.handleStations(parsedStations);
       } catch (error) {
-        setError(error);
+        setError(error as Error);
       } finally {
         setLoading(false);
       }
@@ -32,9 +32,7 @@ function StationSelection() {
     fetchStations();
   }, [network]);
 
-
-  const handleStationChange = (event) => {
-    console.log(event.target.value);
+  const handleStationChange = (event: ChangeEvent<HTMLSelectElement>) => {
     cntx.handleSelectedStation(event.target.value);
   };
   return (
@@ -52,9 +50,9 @@ function StationSelection() {
           onChange={handleStationChange}
           placeholder="Select station"
         >
-          {cntx.stations.map((item) => (
-            <option key={item.station} value={item.station}>
-              {item.Station}
+          {cntx.stations.map((item: Station, index) => (
+            <option key={`${index}` + `${item.siteName}`} value={item.station}>
+              {item.station}
             </option>
           ))}
         </Select>

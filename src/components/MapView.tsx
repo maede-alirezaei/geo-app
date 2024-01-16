@@ -15,6 +15,7 @@ import GeoJSON from "ol/format/GeoJSON.js";
 import { transformSRC } from "../util/transform";
 import { Context } from "../store/ContextProvider";
 import { createGeoJson } from "../util/createGeoJson";
+import { fromLonLat } from "ol/proj";
 
 const MapView = () => {
   const mapRef = useRef();
@@ -30,7 +31,7 @@ const MapView = () => {
       ],
       view: new View({
         center: [0, 0],
-        zoom: 2,
+        zoom: 10,
       }),
     });
     const geoJsonData = createGeoJson(cntx.stations);
@@ -52,7 +53,20 @@ const MapView = () => {
           }),
         }),
       });
-
+      // map
+      //   .getView()
+      //   .fit(
+      //     new Point(
+      //       fromLonLat([
+      //         geoJsonData.features.geometry.coordinates[0],
+      //         geoJsonData.features.geometry.coordinates[1],
+      //       ])
+      //     ),
+      //     {
+      //       maxZoom: map.getView().getZoom(),
+      //       duration: 300,
+      //     }
+      //   );
       // Add Vector layer to the map
       map.addLayer(vectorLayer);
     }
@@ -63,10 +77,21 @@ const MapView = () => {
   }, [cntx.stations]);
 
   if (cntx.selectedStation) {
-    //  mapRef.current.getView().fit(new Point(selectedStation), {
-    //   maxZoom:  mapRef.current.getView().getZoom(),
-    //   duration: 300,
-    // });
+    const selectedStation = cntx.stations.find(
+      (item) => item.station === cntx.selectedStation
+    );
+
+    mapRef.current
+      .getView()
+      .fit(
+        new Point(
+          fromLonLat([selectedStation.longitude, selectedStation.latitude])
+        ),
+        {
+          maxZoom: mapRef.current.getView().getZoom(),
+          duration: 300,
+        }
+      );
   }
   return (
     <Box width={"100%"} height={"100%"}>

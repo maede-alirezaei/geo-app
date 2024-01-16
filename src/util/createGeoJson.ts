@@ -1,19 +1,36 @@
-export function createGeoJson(data) {
+import { Station } from "../services/stations";
+
+interface GeoJsonFeature {
+  type: string;
+  properties: Station;
+  geometry: PointGeometry;
+}
+
+interface PointGeometry {
+  coordinates: number[];
+  type: string;
+}
+export interface GeoJsonFeatureCollection {
+  type: string;
+  features: GeoJsonFeature[];
+}
+
+export function createGeoJson(data: Station[]): GeoJsonFeatureCollection {
   const features = data
-    .filter((item) => item.Latitude && item.Longitude)
+    .filter((item) => item.latitude && item.longitude)
     .map((item) => ({
       type: "Feature",
       properties: {
-        Network: item.Network,
-        Station: item.Station,
-        Elevation: parseFloat(item.Elevation),
-        SiteName: item.SiteName,
-        StartTime: item.StartTime,
-        EndTime: item.EndTime,
+        Network: item.network,
+        Station: item.station,
+        Elevation: parseFloat(item.elevation),
+        SiteName: item.siteName,
+        StartTime: item.startTime,
+        EndTime: item.endTime,
       },
       geometry: {
         type: "Point",
-        coordinates: [parseFloat(item.Longitude), parseFloat(item.Latitude)],
+        coordinates: [parseFloat(item.longitude), parseFloat(item.latitude)],
       },
     }));
 

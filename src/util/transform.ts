@@ -1,38 +1,9 @@
 import { fromLonLat } from "ol/proj";
+import { GeoJsonFeatureCollection } from "./createGeoJson";
 
-/**
- * Interface for the GeoJSON Object
- */
-interface IGeoJSONObject {
-  type: string;
-  features: IFeature[];
-}
-
-/**
- * Interface for the GeoJSON Object Feature
- */
-interface IFeature {
-  type: string;
-  properties: IProperties;
-  geometry: IPointGeometry;
-}
-
-/**
- * Interface for the GeoJSON Object Feature Geometry of type Point
- */
-interface IPointGeometry {
-  coordinates: number[];
-  type: string;
-}
-
-interface IProperties {}
-
-export const transformSRC = (
-  geojsonObject: IGeoJSONObject,
-  targetSRC?: string
-) => {
-  var results = geojsonObject;
-  var temp: number[];
+export const transformSRC = (geojsonObject: GeoJsonFeatureCollection) => {
+  const results = geojsonObject;
+  let temp: number[];
   results["features"].map((feature, index) => {
     const coordinates = feature.geometry.coordinates;
     const geometryType = feature.geometry.type;
