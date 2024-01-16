@@ -10,7 +10,7 @@ export async function Api<T>(
     method,
     url: url,
     baseURL: 'https://geofon.gfz-potsdam.de/fdsnws/station/1/query',
-    params: { level: 'station',format:"text", ...params },
+    params: { format:"text", ...params },
     data: body,
   })
 }

@@ -39,6 +39,7 @@ function StationSelection() {
     <Card width="50%" p="32px">
       <Select placeholder="Select network" onChange={handleChange}>
         <option value="CX">CX</option>
+        <option value="1A">1A</option>
       </Select>
 
       {!network && <Text mt={1}>Please select a network.</Text>}

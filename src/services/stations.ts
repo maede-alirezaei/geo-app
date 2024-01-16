@@ -11,5 +11,5 @@ export interface Station {
 }
 
 export const getStations = (params?: object) => {
-  return Api<string>("get", "", { ...params }, null);
+  return Api<string>("get", "", { level: "station", ...params }, null);
 };
