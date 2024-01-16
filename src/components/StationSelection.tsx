@@ -1,13 +1,13 @@
 import { Box, Card, Select, Text } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getStations } from "../services/stations";
+import { Context } from "../store/ContextProvider";
 
-function StationSelection({ onStationsHandler }) {
+function StationSelection() {
+  const cntx = useContext(Context);
   const [network, setNetwork] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [stations, setStations] = useState([]);
-  const [selectedStation, setSelectedStation] = useState();
   const handleChange = (event) => {
     setNetwork(event.target.value);
   };
@@ -20,8 +20,7 @@ function StationSelection({ onStationsHandler }) {
       try {
         const response = await getStations({ network });
         const parsedStations = parseText(response.data);
-        onStationsHandler(parsedStations);
-        setStations(parsedStations);
+        cntx.handleStations(parsedStations);
       } catch (error) {
         setError(error);
       } finally {
@@ -49,7 +48,7 @@ function StationSelection({ onStationsHandler }) {
   }
 
   const handleStationChange = (event) => {
-    setSelectedStation(event.target.value);
+    cntx.handleSelectedStation(event.target.value);
   };
   return (
     <Card width="50%" p="32px">
@@ -61,18 +60,22 @@ function StationSelection({ onStationsHandler }) {
         <option value="CX">CX</option>
       </Select>
 
-      <Box p={1}>
-        {!network && <Text mt={1}>Please select a network.</Text>}
-        {network && stations && (
-          <Select onChange={handleStationChange}>
-            {stations.map((item) => (
-              <option key={item.station} value={item}>
-                {item.Station}
-              </option>
-            ))}
-          </Select>
-        )}
-      </Box>
+      {!network && <Text mt={1}>Please select a network.</Text>}
+      {loading && <Text mt={1}>Loading...</Text>}
+      {error && <Text mt={1}>{error.message}</Text>}
+      {network && !loading && !error && cntx.stations && (
+        <Select
+          mt={2}
+          onChange={handleStationChange}
+          placeholder="Select station"
+        >
+          {cntx.stations.map((item, index) => (
+            <option key={item.station} value={item}>
+              {item.Station}
+            </option>
+          ))}
+        </Select>
+      )}
     </Card>
   );
 }

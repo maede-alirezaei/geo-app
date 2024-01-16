@@ -1,11 +1,11 @@
-import { useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 
 import "ol/ol.css";
 import Map from "ol/Map.js";
 import OSM from "ol/source/OSM.js";
 import TileLayer from "ol/layer/Tile.js";
 import View from "ol/View.js";
-// import { Point } from "ol/geom";
+import { Point } from "ol/geom";
 
 import { Box } from "@chakra-ui/react";
 import VectorLayer from "ol/layer/Vector.js";
@@ -13,33 +13,11 @@ import VectorSource from "ol/source/Vector.js";
 import { Style, Circle, Fill, Stroke } from "ol/style.js";
 import GeoJSON from "ol/format/GeoJSON.js";
 import { transformSRC } from "../util/transform";
+import { Context } from "../store/ContextProvider";
 
-const MapView = ({ stations }) => {
-  const features = stations
-    .filter((item) => item.Latitude && item.Longitude)
-    .map((item) => ({
-      type: "Feature",
-      properties: {
-        Network: item.Network,
-        Station: item.Station,
-        Elevation: parseFloat(item.Elevation),
-        SiteName: item.SiteName,
-        StartTime: item.StartTime,
-        EndTime: item.EndTime,
-      },
-      geometry: {
-        type: "Point",
-        coordinates: [parseFloat(item.Longitude), parseFloat(item.Latitude)],
-      },
-    }));
-
-  const featureCollection = {
-    type: "FeatureCollection",
-    features,
-  };
-  console.log("stations");
-  const jsonString: string = JSON.stringify(featureCollection, null, 2);
-  console.log(featureCollection);
+const MapView = () => {
+  const mapRef = useRef(null);
+  const cntx = useContext(Context);
 
   useEffect(() => {
     const map = new Map({
@@ -54,13 +32,33 @@ const MapView = ({ stations }) => {
         zoom: 2,
       }),
     });
+    const features = cntx.stations
+      .filter((item) => item.Latitude && item.Longitude)
+      .map((item) => ({
+        type: "Feature",
+        properties: {
+          Network: item.Network,
+          Station: item.Station,
+          Elevation: parseFloat(item.Elevation),
+          SiteName: item.SiteName,
+          StartTime: item.StartTime,
+          EndTime: item.EndTime,
+        },
+        geometry: {
+          type: "Point",
+          coordinates: [parseFloat(item.Longitude), parseFloat(item.Latitude)],
+        },
+      }));
+
+    const featureCollection = {
+      type: "FeatureCollection",
+      features,
+    };
 
     if (featureCollection.features.length > 0) {
-      const GeoJSONObject3857 = transformSRC(featureCollection);
-      console.log("jsonString");
-
+      const geoJSONObject = transformSRC(featureCollection);
       const vectorSource = new VectorSource({
-        features: new GeoJSON().readFeatures(GeoJSONObject3857),
+        features: new GeoJSON().readFeatures(geoJSONObject),
       });
 
       const vectorLayer = new VectorLayer({
@@ -78,23 +76,21 @@ const MapView = ({ stations }) => {
       // Add Vector layer to the map
       map.addLayer(vectorLayer);
     }
-
+    mapRef.current = map;
     return () => {
       map.setTarget(undefined);
     };
-  }, [jsonString]);
+  }, [cntx.stations]);
 
-  // useEffect(() => {
-  //    if (lat && lng) {
-  //     map.getView().fit(new Point([lat, lng]), {
-  //       maxZoom: map.getView().getZoom(),
-  //       duration: 300,
-  //     });
-
-  //    }
-  //   // Update Map View
-  // }, [lat, lng])
-
+  useEffect(() => {
+    if (cntx.selectedStation) {
+      console.log("selectedStation");
+      //  mapRef.current.getView().fit(new Point(selectedStation), {
+      //   maxZoom:  mapRef.current.getView().getZoom(),
+      //   duration: 300,
+      // });
+    }
+  }, [cntx.selectedStation]);
   return (
     <Box width={"100%"} height={"100%"}>
       <div id="map"></div>
