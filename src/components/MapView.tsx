@@ -16,7 +16,7 @@ import { transformSRC } from "../util/transform";
 import { Context } from "../store/ContextProvider";
 
 const MapView = () => {
-  const mapRef = useRef(null);
+  const mapRef = useRef();
   const cntx = useContext(Context);
 
   useEffect(() => {
@@ -82,15 +82,13 @@ const MapView = () => {
     };
   }, [cntx.stations]);
 
-  useEffect(() => {
-    if (cntx.selectedStation) {
-      console.log("selectedStation");
-      //  mapRef.current.getView().fit(new Point(selectedStation), {
-      //   maxZoom:  mapRef.current.getView().getZoom(),
-      //   duration: 300,
-      // });
-    }
-  }, [cntx.selectedStation]);
+  if (cntx.selectedStation) {
+    console.log("selectedStation");
+    //  mapRef.current.getView().fit(new Point(selectedStation), {
+    //   maxZoom:  mapRef.current.getView().getZoom(),
+    //   duration: 300,
+    // });
+  }
   return (
     <Box width={"100%"} height={"100%"}>
       <div id="map"></div>

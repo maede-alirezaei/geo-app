@@ -48,15 +48,12 @@ function StationSelection() {
   }
 
   const handleStationChange = (event) => {
+    console.log(event.target.value);
     cntx.handleSelectedStation(event.target.value);
   };
   return (
     <Card width="50%" p="32px">
-      <Select
-        placeholder="Select network"
-        onChange={handleChange}
-        value={network}
-      >
+      <Select placeholder="Select network" onChange={handleChange}>
         <option value="CX">CX</option>
       </Select>
 
@@ -69,8 +66,8 @@ function StationSelection() {
           onChange={handleStationChange}
           placeholder="Select station"
         >
-          {cntx.stations.map((item, index) => (
-            <option key={item.station} value={item}>
+          {cntx.stations.map((item) => (
+            <option key={item.station} value={item.station}>
               {item.Station}
             </option>
           ))}
