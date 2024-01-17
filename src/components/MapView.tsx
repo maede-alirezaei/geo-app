@@ -5,7 +5,7 @@ import Map from "ol/Map.js";
 import OSM from "ol/source/OSM.js";
 import TileLayer from "ol/layer/Tile.js";
 import View from "ol/View.js";
-import { Point } from "ol/geom";
+import { Geometry, Point } from "ol/geom";
 
 import { Box } from "@chakra-ui/react";
 import VectorLayer from "ol/layer/Vector.js";
@@ -17,9 +17,10 @@ import { Context } from "../store/ContextProvider";
 import { createGeoJson } from "../util/createGeoJson";
 import { fromLonLat } from "ol/proj";
 import { Station } from "../services/stations";
+import { Feature } from "ol";
 
 const MapView = () => {
-  const mapRef = useRef();
+  const mapRef = useRef<Map | null>();
   const cntx = useContext(Context);
 
   useEffect(() => {
@@ -37,10 +38,9 @@ const MapView = () => {
     });
 
     map.on("pointermove", function (e) {
-      e.preventDefault();
       map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
         if (layer && layer.get("name") === "stations") {
-          const refCoordinates = feature.getGeometry().getCoordinates();
+          const refCoordinates = feature.getGeometry()?.getCoordinates(); 
           const x = refCoordinates[0].toFixed(3);
           const y = refCoordinates[1].toFixed(3);
           const info = `<div>
@@ -58,29 +58,33 @@ const MapView = () => {
             </span>
             
             </div>`;
-          document.getElementById("info").innerHTML = info;
+          const infoElement = document.getElementById("info");
+          if (infoElement) infoElement.innerHTML = info;
         }
       });
     });
     mapRef.current = map;
     return () => {
+
       map.setTarget(undefined);
     };
   }, []);
 
   useEffect(() => {
     if (cntx.stations) {
-      mapRef.current.getLayers().forEach((layer) => {
+      mapRef.current?.getLayers().forEach((layer) => {
         if (layer && layer.get("name") === "stations") {
-          mapRef.current.removeLayer(layer);
+          mapRef.current?.removeLayer(layer);
         }
       });
       const geoJsonData = createGeoJson(cntx.stations);
 
       if (geoJsonData.features.length > 0) {
         const geoJSONObject = transformSRC(geoJsonData);
-        const vectorSource = new VectorSource({
-          features: new GeoJSON().readFeatures(geoJSONObject),
+        const vectorSource = new VectorSource<Feature>({
+          features: new GeoJSON().readFeatures(
+            geoJSONObject
+          ) as Feature<Geometry>[],
         });
 
         const vectorLayer = new VectorLayer({
@@ -96,9 +100,9 @@ const MapView = () => {
           properties: { name: "stations" },
         });
         // Add Vector layer to the map
-        mapRef.current.addLayer(vectorLayer);
+        mapRef.current?.addLayer(vectorLayer);
         const extent = vectorSource.getExtent();
-        mapRef.current.getView().fit(extent, {
+        mapRef.current?.getView().fit(extent, {
           size: mapRef.current.getSize(),
           duration: 300,
         });
@@ -107,15 +111,18 @@ const MapView = () => {
   }, [cntx.stations]);
 
   if (cntx.selectedStation) {
-    const selectedStation: Station | undefined = cntx.stations.find(
-      (item) => item.station === cntx.selectedStation
+    const selectedStation: Station | undefined = cntx.stations?.find(
+      (item: Station) => item.station === cntx.selectedStation
     );
     if (selectedStation) {
       mapRef.current
-        .getView()
+        ?.getView()
         .fit(
           new Point(
-            fromLonLat([selectedStation.longitude, selectedStation.latitude])
+            fromLonLat([
+              parseFloat(selectedStation.longitude),
+              parseFloat(selectedStation.latitude),
+            ])
           ),
           {
             maxZoom: 10,

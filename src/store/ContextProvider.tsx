@@ -5,7 +5,7 @@ interface ContextProps {
   children: ReactNode;
 }
 export const Context = createContext({
-  stations: [],
+  stations: [{} as Station],
   selectedStation: "",
   handleStations: (stations: Station[]) => {
     stations;

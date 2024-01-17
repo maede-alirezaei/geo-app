@@ -1,8 +1,17 @@
 import { Station } from "../services/stations";
 
+
+interface GeoJsonFeatureProperties {
+  Network: string;
+  Station: string;
+  Elevation: number;
+  SiteName: string;
+  StartTime: string;
+  EndTime: string;
+}
 interface GeoJsonFeature {
   type: string;
-  properties: Station;
+  properties: GeoJsonFeatureProperties;
   geometry: PointGeometry;
 }
 
@@ -34,10 +43,10 @@ export function createGeoJson(data: Station[]): GeoJsonFeatureCollection {
       },
     }));
 
-  const featureCollection = {
-    type: "FeatureCollection",
-    features,
-  };
+    const featureCollection: GeoJsonFeatureCollection = {
+      type: "FeatureCollection",
+      features,
+    };
 
   return featureCollection;
 }

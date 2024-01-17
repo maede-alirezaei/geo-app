@@ -6,8 +6,8 @@ export interface Station {
   siteName: string;
   startTime: string;
   endTime: string;
-  latitude: number;
-  longitude: number;
+  latitude: string;
+  longitude: string;
 }
 
 export const getStations = (params?: object) => {
