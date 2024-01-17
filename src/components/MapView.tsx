@@ -16,6 +16,7 @@ import { transformSRC } from "../util/transform";
 import { Context } from "../store/ContextProvider";
 import { createGeoJson } from "../util/createGeoJson";
 import { fromLonLat } from "ol/proj";
+import { Station } from "../services/stations";
 
 const MapView = () => {
   const mapRef = useRef();
@@ -43,20 +44,21 @@ const MapView = () => {
           const x = refCoordinates[0].toFixed(3);
           const y = refCoordinates[1].toFixed(3);
           const info = `<div>
-              <p style="margin:0; text-align:center">
-                <span style="font-weight:bold">
-                  ${feature.getProperties().Network}
+                <span>
+                Network:  ${feature.getProperties().Network}
                 </span>
-              </p>
-              <hr style="margin:8px 0" />
-              <p style="margin:0">
-                X: ${x} <br />
-                Y: ${y}
-              </p>
+                <span>
+               Station:  ${feature.getProperties().Station}
+              </span>
+                <span>
+                X: ${x}
+              </span>
+              <span>
+              Y: ${y}
+            </span>
+            
             </div>`;
-          document.getElementById("popup-content").innerHTML = info;
-        } else {
-          document.getElementById("popup-content").innerHTML = "";
+          document.getElementById("info").innerHTML = info;
         }
       });
     });
@@ -105,7 +107,7 @@ const MapView = () => {
   }, [cntx.stations]);
 
   if (cntx.selectedStation) {
-    const selectedStation = cntx.stations.find(
+    const selectedStation: Station | undefined = cntx.stations.find(
       (item) => item.station === cntx.selectedStation
     );
     if (selectedStation) {
@@ -124,9 +126,24 @@ const MapView = () => {
   }
 
   return (
-    <Box width={"100%"} height={"100%"}>
-      <div id="popup">
-        <span id="popup-content">info</span>
+    <Box position="relative" width="100%" height="100%">
+      <div
+        id="info"
+        style={{
+          position: "absolute",
+          top: "2%",
+          right: "20%",
+          left: "20%",
+          zIndex: 1,
+          textAlign: "center",
+          backgroundColor: "white",
+          padding: "10px",
+          border: "1px solid #ccc",
+          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+          fontWeight: "bold",
+        }}
+      >
+        Stations Map
       </div>
       <div id="map"></div>
     </Box>

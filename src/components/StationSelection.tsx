@@ -3,10 +3,12 @@ import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { Station, getStations } from "../services/stations";
 import { Context } from "../store/ContextProvider";
 import { parseText } from "../util/parseText";
+import { Network, getNetworks } from "../services/networks";
 
 function StationSelection() {
   const cntx = useContext(Context);
   const [network, setNetwork] = useState<string>("");
+  const [networks, setNetworks] = useState<Network[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -21,7 +23,7 @@ function StationSelection() {
 
       try {
         const response = await getStations({ network });
-        const parsedStations: Station[] = parseText(response.data);
+        const parsedStations: Station[] = parseText<Station>(response.data);
         cntx.handleStations(parsedStations);
       } catch (error) {
         setError(error as Error);
@@ -31,20 +33,38 @@ function StationSelection() {
     };
     fetchStations();
   }, [network]);
-
+  useEffect(() => {
+    const fetchNetworks = async () => {
+      setLoading(true);
+      try {
+        const response = await getNetworks();
+        const parsedNetworks = parseText<Network>(response.data);
+        setNetworks(parsedNetworks);
+      } catch (error) {
+        setError(error as Error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNetworks();
+  }, []);
   const handleStationChange = (event: ChangeEvent<HTMLSelectElement>) => {
     cntx.handleSelectedStation(event.target.value);
   };
   return (
-    <Card width="50%" p="32px">
+    <Card width="50%" p="32px" mr={2}>
       <Select placeholder="Select network" onChange={handleChange}>
-        <option value="CX">CX</option>
-        <option value="1A">1A</option>
+        {networks &&
+          networks.map((item, index) => (
+            <option key={`${index}` + `${item.network}`} value={item.network}>
+              {item.network}
+            </option>
+          ))}
       </Select>
 
-      {!network && <Text mt={1}>Please select a network.</Text>}
-      {loading && <Text mt={1}>Loading...</Text>}
-      {error && <Text mt={1}>{error.message}</Text>}
+      {!network && <Text m={2}>Please select a network.</Text>}
+      {loading && <Text m={2}>Loading...</Text>}
+      {error && <Text m={2}>{error.message}</Text>}
       {network && !loading && !error && cntx.stations && (
         <Select
           mt={2}
