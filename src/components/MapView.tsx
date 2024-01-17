@@ -40,9 +40,7 @@ const MapView = () => {
     map.on("pointermove", function (e) {
       map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
         if (layer && layer.get("name") === "stations") {
-          const refCoordinates = feature.getGeometry()?.getCoordinates(); 
-          const x = refCoordinates[0].toFixed(3);
-          const y = refCoordinates[1].toFixed(3);
+          console.log(feature.getProperties());
           const info = `<div>
                 <span>
                 Network:  ${feature.getProperties().Network}
@@ -51,10 +49,10 @@ const MapView = () => {
                Station:  ${feature.getProperties().Station}
               </span>
                 <span>
-                X: ${x}
+                X: ${feature.getProperties().geometry.flatCoordinates[0]}
               </span>
               <span>
-              Y: ${y}
+              Y: ${feature.getProperties().geometry.flatCoordinates[1]}
             </span>
             
             </div>`;
@@ -65,7 +63,6 @@ const MapView = () => {
     });
     mapRef.current = map;
     return () => {
-
       map.setTarget(undefined);
     };
   }, []);
